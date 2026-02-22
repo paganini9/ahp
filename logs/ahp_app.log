@@ -1,0 +1,264 @@
+[2026-01-11 20:14:01,853] [INFO] [GROUP AHP] sheets=3, crit_mats=3, sub_mats={창업자금:0,비즈니스모델:0,경영관리:0}}, group_sub_keys=[], final_weights_len=0
+[2026-01-11 20:14:01,853] [INFO] [GROUP RESULT] final_weights_len=0
+[2026-01-11 20:33:05,699] [INFO] [GROUP AHP] sheets=3, crit_mats=3, sub_mats={창업자금:3,비즈니스모델:3,경영관리:3}}, group_sub_keys=['창업자금', '비즈니스모델', '경영관리'], final_weights_len=13
+[2026-01-11 20:33:05,699] [INFO] [GROUP RESULT] final_weights_len=13
+[2026-01-11 20:33:33,856] [INFO] [GROUP AHP] sheets=3, crit_mats=3, sub_mats={창업자금:3,비즈니스모델:3,경영관리:3}}, group_sub_keys=['창업자금', '비즈니스모델', '경영관리'], final_weights_len=13
+[2026-01-11 20:33:33,856] [INFO] [GROUP RESULT] final_weights_len=13
+[2026-01-11 20:36:48,071] [INFO] [AHP SAVE PRE] respondent=True, crit_matrix_shape=(3, 3), sub_keys=['창업자금', '비즈니스모델', '경영관리']
+[2026-01-11 20:36:48,131] [INFO] [SAVE OK] C:\Users\jaehyunlee\repos\ahp\data\survey_results.xlsx (sheet=S260111_203648_F6AB67), cwd=C:\Users\jaehyunlee\repos\ahp
+[2026-01-11 20:37:18,602] [INFO] [GROUP AHP] sheets=3, crit_mats=3, sub_mats={창업자금:3,비즈니스모델:3,경영관리:3}}, group_sub_keys=['창업자금', '비즈니스모델', '경영관리'], final_weights_len=13
+[2026-01-11 20:37:18,602] [INFO] [GROUP RESULT] final_weights_len=13
+[2026-01-11 20:37:26,663] [INFO] [GROUP AHP] sheets=3, crit_mats=3, sub_mats={창업자금:3,비즈니스모델:3,경영관리:3}}, group_sub_keys=['창업자금', '비즈니스모델', '경영관리'], final_weights_len=13
+[2026-01-11 20:37:26,664] [INFO] [GROUP RESULT] final_weights_len=13
+[2026-01-11 21:24:28,956] [ERROR] [API CR STEP1 FAIL] TypeError: Object of type bool is not JSON serializable
+Traceback (most recent call last):
+  File "C:\Users\jaehyunlee\repos\ahp\ahp_app.py", line 105, in api_cr_step1
+    return jsonify({
+           ^^^^^^^^^
+  File "C:\Users\jaehyunlee\.conda\envs\survey_env\Lib\site-packages\flask\json\__init__.py", line 170, in jsonify
+    return current_app.json.response(*args, **kwargs)  # type: ignore[return-value]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\jaehyunlee\.conda\envs\survey_env\Lib\site-packages\flask\json\provider.py", line 214, in response
+    f"{self.dumps(obj, **dump_args)}\n", mimetype=self.mimetype
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\jaehyunlee\.conda\envs\survey_env\Lib\site-packages\flask\json\provider.py", line 179, in dumps
+    return json.dumps(obj, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\jaehyunlee\.conda\envs\survey_env\Lib\json\__init__.py", line 238, in dumps
+    **kw).encode(obj)
+          ^^^^^^^^^^^
+  File "C:\Users\jaehyunlee\.conda\envs\survey_env\Lib\json\encoder.py", line 200, in encode
+    chunks = self.iterencode(o, _one_shot=True)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\jaehyunlee\.conda\envs\survey_env\Lib\json\encoder.py", line 258, in iterencode
+    return _iterencode(o, 0)
+           ^^^^^^^^^^^^^^^^^
+  File "C:\Users\jaehyunlee\.conda\envs\survey_env\Lib\site-packages\flask\json\provider.py", line 121, in _default
+    raise TypeError(f"Object of type {type(o).__name__} is not JSON serializable")
+TypeError: Object of type bool is not JSON serializable
+[2026-01-11 21:24:33,044] [ERROR] [API CR STEP1 FAIL] TypeError: Object of type bool is not JSON serializable
+Traceback (most recent call last):
+  File "C:\Users\jaehyunlee\repos\ahp\ahp_app.py", line 105, in api_cr_step1
+    return jsonify({
+           ^^^^^^^^^
+  File "C:\Users\jaehyunlee\.conda\envs\survey_env\Lib\site-packages\flask\json\__init__.py", line 170, in jsonify
+    return current_app.json.response(*args, **kwargs)  # type: ignore[return-value]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\jaehyunlee\.conda\envs\survey_env\Lib\site-packages\flask\json\provider.py", line 214, in response
+    f"{self.dumps(obj, **dump_args)}\n", mimetype=self.mimetype
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\jaehyunlee\.conda\envs\survey_env\Lib\site-packages\flask\json\provider.py", line 179, in dumps
+    return json.dumps(obj, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\jaehyunlee\.conda\envs\survey_env\Lib\json\__init__.py", line 238, in dumps
+    **kw).encode(obj)
+          ^^^^^^^^^^^
+  File "C:\Users\jaehyunlee\.conda\envs\survey_env\Lib\json\encoder.py", line 200, in encode
+    chunks = self.iterencode(o, _one_shot=True)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\jaehyunlee\.conda\envs\survey_env\Lib\json\encoder.py", line 258, in iterencode
+    return _iterencode(o, 0)
+           ^^^^^^^^^^^^^^^^^
+  File "C:\Users\jaehyunlee\.conda\envs\survey_env\Lib\site-packages\flask\json\provider.py", line 121, in _default
+    raise TypeError(f"Object of type {type(o).__name__} is not JSON serializable")
+TypeError: Object of type bool is not JSON serializable
+[2026-01-11 21:24:34,341] [ERROR] [API CR STEP1 FAIL] TypeError: Object of type bool is not JSON serializable
+Traceback (most recent call last):
+  File "C:\Users\jaehyunlee\repos\ahp\ahp_app.py", line 105, in api_cr_step1
+    return jsonify({
+           ^^^^^^^^^
+  File "C:\Users\jaehyunlee\.conda\envs\survey_env\Lib\site-packages\flask\json\__init__.py", line 170, in jsonify
+    return current_app.json.response(*args, **kwargs)  # type: ignore[return-value]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\jaehyunlee\.conda\envs\survey_env\Lib\site-packages\flask\json\provider.py", line 214, in response
+    f"{self.dumps(obj, **dump_args)}\n", mimetype=self.mimetype
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\jaehyunlee\.conda\envs\survey_env\Lib\site-packages\flask\json\provider.py", line 179, in dumps
+    return json.dumps(obj, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\jaehyunlee\.conda\envs\survey_env\Lib\json\__init__.py", line 238, in dumps
+    **kw).encode(obj)
+          ^^^^^^^^^^^
+  File "C:\Users\jaehyunlee\.conda\envs\survey_env\Lib\json\encoder.py", line 200, in encode
+    chunks = self.iterencode(o, _one_shot=True)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\jaehyunlee\.conda\envs\survey_env\Lib\json\encoder.py", line 258, in iterencode
+    return _iterencode(o, 0)
+           ^^^^^^^^^^^^^^^^^
+  File "C:\Users\jaehyunlee\.conda\envs\survey_env\Lib\site-packages\flask\json\provider.py", line 121, in _default
+    raise TypeError(f"Object of type {type(o).__name__} is not JSON serializable")
+TypeError: Object of type bool is not JSON serializable
+[2026-01-11 21:24:34,981] [ERROR] [API CR STEP1 FAIL] TypeError: Object of type bool is not JSON serializable
+Traceback (most recent call last):
+  File "C:\Users\jaehyunlee\repos\ahp\ahp_app.py", line 105, in api_cr_step1
+    return jsonify({
+           ^^^^^^^^^
+  File "C:\Users\jaehyunlee\.conda\envs\survey_env\Lib\site-packages\flask\json\__init__.py", line 170, in jsonify
+    return current_app.json.response(*args, **kwargs)  # type: ignore[return-value]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\jaehyunlee\.conda\envs\survey_env\Lib\site-packages\flask\json\provider.py", line 214, in response
+    f"{self.dumps(obj, **dump_args)}\n", mimetype=self.mimetype
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\jaehyunlee\.conda\envs\survey_env\Lib\site-packages\flask\json\provider.py", line 179, in dumps
+    return json.dumps(obj, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\jaehyunlee\.conda\envs\survey_env\Lib\json\__init__.py", line 238, in dumps
+    **kw).encode(obj)
+          ^^^^^^^^^^^
+  File "C:\Users\jaehyunlee\.conda\envs\survey_env\Lib\json\encoder.py", line 200, in encode
+    chunks = self.iterencode(o, _one_shot=True)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\jaehyunlee\.conda\envs\survey_env\Lib\json\encoder.py", line 258, in iterencode
+    return _iterencode(o, 0)
+           ^^^^^^^^^^^^^^^^^
+  File "C:\Users\jaehyunlee\.conda\envs\survey_env\Lib\site-packages\flask\json\provider.py", line 121, in _default
+    raise TypeError(f"Object of type {type(o).__name__} is not JSON serializable")
+TypeError: Object of type bool is not JSON serializable
+[2026-01-11 21:24:38,303] [ERROR] [API CR STEP2 FAIL] TypeError: Object of type bool is not JSON serializable
+Traceback (most recent call last):
+  File "C:\Users\jaehyunlee\repos\ahp\ahp_app.py", line 150, in api_cr_step2
+    return jsonify({"ready": all_ready, "ok": all_ok, "threshold": CR_THRESHOLD_INDIVIDUAL, "results": results})
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\jaehyunlee\.conda\envs\survey_env\Lib\site-packages\flask\json\__init__.py", line 170, in jsonify
+    return current_app.json.response(*args, **kwargs)  # type: ignore[return-value]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\jaehyunlee\.conda\envs\survey_env\Lib\site-packages\flask\json\provider.py", line 214, in response
+    f"{self.dumps(obj, **dump_args)}\n", mimetype=self.mimetype
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\jaehyunlee\.conda\envs\survey_env\Lib\site-packages\flask\json\provider.py", line 179, in dumps
+    return json.dumps(obj, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\jaehyunlee\.conda\envs\survey_env\Lib\json\__init__.py", line 238, in dumps
+    **kw).encode(obj)
+          ^^^^^^^^^^^
+  File "C:\Users\jaehyunlee\.conda\envs\survey_env\Lib\json\encoder.py", line 200, in encode
+    chunks = self.iterencode(o, _one_shot=True)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\jaehyunlee\.conda\envs\survey_env\Lib\json\encoder.py", line 258, in iterencode
+    return _iterencode(o, 0)
+           ^^^^^^^^^^^^^^^^^
+  File "C:\Users\jaehyunlee\.conda\envs\survey_env\Lib\site-packages\flask\json\provider.py", line 121, in _default
+    raise TypeError(f"Object of type {type(o).__name__} is not JSON serializable")
+TypeError: Object of type bool is not JSON serializable
+[2026-01-11 21:24:45,604] [ERROR] [API CR STEP1 FAIL] TypeError: Object of type bool is not JSON serializable
+Traceback (most recent call last):
+  File "C:\Users\jaehyunlee\repos\ahp\ahp_app.py", line 105, in api_cr_step1
+    return jsonify({
+           ^^^^^^^^^
+  File "C:\Users\jaehyunlee\.conda\envs\survey_env\Lib\site-packages\flask\json\__init__.py", line 170, in jsonify
+    return current_app.json.response(*args, **kwargs)  # type: ignore[return-value]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\jaehyunlee\.conda\envs\survey_env\Lib\site-packages\flask\json\provider.py", line 214, in response
+    f"{self.dumps(obj, **dump_args)}\n", mimetype=self.mimetype
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\jaehyunlee\.conda\envs\survey_env\Lib\site-packages\flask\json\provider.py", line 179, in dumps
+    return json.dumps(obj, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\jaehyunlee\.conda\envs\survey_env\Lib\json\__init__.py", line 238, in dumps
+    **kw).encode(obj)
+          ^^^^^^^^^^^
+  File "C:\Users\jaehyunlee\.conda\envs\survey_env\Lib\json\encoder.py", line 200, in encode
+    chunks = self.iterencode(o, _one_shot=True)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\jaehyunlee\.conda\envs\survey_env\Lib\json\encoder.py", line 258, in iterencode
+    return _iterencode(o, 0)
+           ^^^^^^^^^^^^^^^^^
+  File "C:\Users\jaehyunlee\.conda\envs\survey_env\Lib\site-packages\flask\json\provider.py", line 121, in _default
+    raise TypeError(f"Object of type {type(o).__name__} is not JSON serializable")
+TypeError: Object of type bool is not JSON serializable
+[2026-01-11 21:56:43,324] [INFO] [AHP SAVE PRE] respondent=True, crit_cr=0.1576, threshold=0.2, crit_matrix_shape=(3, 3), sub_keys=['창업자금', '비즈니스모델', '경영관리']
+[2026-01-11 21:56:43,497] [INFO] [SAVE OK] C:\Users\jaehyunlee\repos\ahp\data\survey_results.xlsx (sheet=S260111_215643_61091E), cwd=C:\Users\jaehyunlee\repos\ahp
+[2026-01-11 21:58:34,494] [INFO] [GROUP AHP] sheets=4, crit_mats=4, sub_mats={창업자금:4,비즈니스모델:4,경영관리:4}}, group_sub_keys=['창업자금', '비즈니스모델', '경영관리'], final_weights_len=13
+[2026-01-11 21:58:34,494] [INFO] [GROUP RESULT] final_weights_len=13
+[2026-01-11 21:58:49,789] [INFO] [GROUP AHP] sheets=6, crit_mats=6, sub_mats={창업자금:6,비즈니스모델:6,경영관리:6}}, group_sub_keys=['창업자금', '비즈니스모델', '경영관리'], final_weights_len=13
+[2026-01-11 21:58:49,790] [INFO] [GROUP RESULT] final_weights_len=13
+[2026-01-12 14:12:40,107] [INFO] [AHP SAVE PRE] respondent=True, crit_cr=0.1169, threshold=0.2, crit_matrix_shape=(3, 3), sub_keys=['창업자금', '비즈니스모델', '경영관리']
+[2026-01-12 14:12:40,450] [INFO] [SAVE OK] C:\Users\jaehyunlee\repos\ahp\data\survey_results.xlsx (sheet=S260112_141240_C83429), cwd=C:\Users\jaehyunlee\repos\ahp
+[2026-01-12 14:13:37,783] [INFO] [GROUP AHP] sheets=5, crit_mats=5, sub_mats={창업자금:5,비즈니스모델:5,경영관리:5}}, group_sub_keys=['창업자금', '비즈니스모델', '경영관리'], final_weights_len=13
+[2026-01-12 14:13:37,783] [INFO] [GROUP RESULT] final_weights_len=13
+[2026-01-12 14:21:01,224] [INFO] [AHP SAVE PRE] respondent=True, crit_cr=0.1169, threshold=0.2, crit_matrix_shape=(3, 3), sub_keys=['창업자금', '비즈니스모델', '경영관리']
+[2026-01-12 14:21:01,375] [INFO] [SAVE OK] C:\Users\jaehyunlee\repos\ahp\data\survey_results.xlsx (sheet=S260112_142101_677A6A), cwd=C:\Users\jaehyunlee\repos\ahp
+[2026-01-12 14:21:31,996] [INFO] [AHP SAVE PRE] respondent=True, crit_cr=0.0000, threshold=0.2, crit_matrix_shape=(3, 3), sub_keys=['창업자금', '비즈니스모델', '경영관리']
+[2026-01-12 14:21:32,027] [INFO] [SAVE OK] C:\Users\jaehyunlee\repos\ahp\data\survey_results.xlsx (sheet=S260112_142131_3D960E), cwd=C:\Users\jaehyunlee\repos\ahp
+[2026-01-12 14:24:12,147] [INFO] [GROUP AHP] sheets=2, crit_mats=2, sub_mats={창업자금:2,비즈니스모델:2,경영관리:2}}, group_sub_keys=['창업자금', '비즈니스모델', '경영관리'], final_weights_len=13
+[2026-01-12 14:24:12,147] [INFO] [GROUP RESULT] final_weights_len=13
+[2026-01-12 14:24:20,322] [INFO] [GROUP AHP] sheets=2, crit_mats=2, sub_mats={창업자금:2,비즈니스모델:2,경영관리:2}}, group_sub_keys=['창업자금', '비즈니스모델', '경영관리'], final_weights_len=13
+[2026-01-12 14:24:20,324] [INFO] [GROUP RESULT] final_weights_len=13
+[2026-01-12 14:30:16,250] [INFO] [AHP SAVE PRE] respondent=True, crit_cr=0.0000, threshold=0.2, crit_matrix_shape=(3, 3), sub_keys=['창업자금', '비즈니스모델', '경영관리']
+[2026-01-12 14:30:16,279] [INFO] [SAVE OK] C:\Users\jaehyunlee\repos\ahp\data\survey_results.xlsx (sheet=S260112_143016_2C4CFD), cwd=C:\Users\jaehyunlee\repos\ahp
+[2026-01-12 14:31:11,395] [INFO] [GROUP AHP] sheets=1, crit_mats=1, sub_mats={창업자금:1,비즈니스모델:1,경영관리:1}}, group_sub_keys=['창업자금', '비즈니스모델', '경영관리'], final_weights_len=13
+[2026-01-12 14:31:11,395] [INFO] [GROUP RESULT] final_weights_len=13
+[2026-01-12 14:40:47,063] [INFO] [AHP SAVE PRE] respondent=True, crit_cr=0.0332, threshold=0.2, crit_matrix_shape=(3, 3), sub_keys=['창업자금', '비즈니스모델', '경영관리']
+[2026-01-12 14:40:47,123] [INFO] [SAVE OK] C:\Users\jaehyunlee\repos\ahp\data\survey_results.xlsx (sheet=S260112_144047_654BC8), cwd=C:\Users\jaehyunlee\repos\ahp
+[2026-01-12 14:45:31,806] [INFO] [AHP SAVE PRE] respondent=True, crit_cr=0.1169, threshold=0.2, crit_matrix_shape=(3, 3), sub_keys=['창업자금', '비즈니스모델', '경영관리']
+[2026-01-12 14:45:31,842] [INFO] [SAVE OK] C:\Users\jaehyunlee\repos\ahp\data\survey_results.xlsx (sheet=S260112_144531_598358), cwd=C:\Users\jaehyunlee\repos\ahp
+[2026-01-12 14:47:12,589] [INFO] [AHP SAVE PRE] respondent=True, crit_cr=0.1797, threshold=0.2, crit_matrix_shape=(3, 3), sub_keys=['창업자금', '비즈니스모델', '경영관리']
+[2026-01-12 14:47:12,653] [INFO] [SAVE OK] C:\Users\jaehyunlee\repos\ahp\data\survey_results.xlsx (sheet=S260112_144712_E5F22D), cwd=C:\Users\jaehyunlee\repos\ahp
+[2026-01-12 14:52:00,337] [INFO] [AHP SAVE PRE] respondent=True, crit_cr=0.0332, threshold=0.2, crit_matrix_shape=(3, 3), sub_keys=['창업자금', '비즈니스모델', '경영관리']
+[2026-01-12 14:52:00,514] [INFO] [SAVE OK] C:\Users\jaehyunlee\repos\ahp\data\survey_results.xlsx (sheet=S260112_145200_080237), cwd=C:\Users\jaehyunlee\repos\ahp
+[2026-01-12 15:04:09,214] [INFO] [AHP SAVE PRE] respondent=True, crit_cr=0.0061, threshold=0.2, crit_matrix_shape=(3, 3), sub_keys=['창업자금', '비즈니스모델', '경영관리']
+[2026-01-12 15:04:09,276] [INFO] [SAVE OK] C:\Users\jaehyunlee\repos\ahp\data\survey_results.xlsx (sheet=S260112_150409_9290B2), cwd=C:\Users\jaehyunlee\repos\ahp
+[2026-01-12 15:11:36,134] [INFO] [AHP SAVE PRE] respondent=True, crit_cr=0.0000, threshold=0.2, crit_matrix_shape=(3, 3), sub_keys=['창업자금', '비즈니스모델', '경영관리']
+[2026-01-12 15:11:36,197] [INFO] [SAVE OK] C:\Users\jaehyunlee\repos\ahp\data\survey_results.xlsx (sheet=S260112_151136_7FD65E), cwd=C:\Users\jaehyunlee\repos\ahp
+[2026-01-12 16:14:54,890] [INFO] [AHP SAVE PRE] respondent=True, crit_cr=0.1169, threshold=0.2, crit_matrix_shape=(3, 3), sub_keys=['창업자금', '비즈니스모델', '경영관리']
+[2026-01-12 16:14:54,953] [INFO] [SAVE OK] C:\Users\jaehyunlee\repos\ahp\data\survey_results.xlsx (sheet=S260112_161454_6F6600), cwd=C:\Users\jaehyunlee\repos\ahp
+[2026-01-12 16:20:27,662] [INFO] [GROUP AHP] sheets=1, crit_mats=1, sub_mats={창업자금:1,비즈니스모델:1,경영관리:1}}, group_sub_keys=['창업자금', '비즈니스모델', '경영관리'], final_weights_len=13
+[2026-01-12 16:20:27,662] [INFO] [GROUP RESULT] final_weights_len=13
+[2026-01-12 18:31:39,359] [INFO] [AHP SAVE PRE] respondent=True, crit_cr=0.0000, threshold=0.2, crit_matrix_shape=(3, 3), sub_keys=['창업자금', '비즈니스모델', '경영관리']
+[2026-01-12 18:31:39,422] [INFO] [SAVE OK] C:\Users\jaehyunlee\repos\ahp\data\survey_results.xlsx (sheet=S260112_183139_5B88CA), cwd=C:\Users\jaehyunlee\repos\ahp
+[2026-01-12 23:08:07,020] [INFO] [AHP SAVE PRE] respondent=True, crit_cr=0.1169, threshold=0.2, crit_matrix_shape=(3, 3), sub_keys=['창업자금', '비즈니스모델', '경영관리']
+[2026-01-12 23:08:07,153] [INFO] [SAVE OK] C:\Users\jaehyunlee\repos\ahp\data\survey_results.xlsx (sheet=S260112_230807_731C3C), cwd=C:\Users\jaehyunlee\repos\ahp
+[2026-01-12 23:18:51,411] [INFO] [AHP SAVE PRE] respondent=True, crit_cr=0.0000, threshold=0.2, crit_matrix_shape=(3, 3), sub_keys=['창업자금', '비즈니스모델', '경영관리']
+[2026-01-12 23:18:51,495] [INFO] [SAVE OK] C:\Users\jaehyunlee\repos\ahp\data\survey_results.xlsx (sheet=S260112_231851_E09E98), cwd=C:\Users\jaehyunlee\repos\ahp
+[2026-01-13 10:26:25,889] [INFO] [AHP SAVE PRE] respondent=True, crit_cr=0.1169, threshold=0.2, crit_matrix_shape=(3, 3), sub_keys=['창업자금', '비즈니스모델', '경영관리']
+[2026-01-13 10:26:26,039] [INFO] [SAVE OK] C:\Users\jaehyunlee\repos\ahp\data\survey_results.xlsx (sheet=S260113_102625_8E1590), cwd=C:\Users\jaehyunlee\repos\ahp
+[2026-01-13 12:09:47,187] [INFO] [GROUP AHP] sheets=6, crit_mats=6, sub_mats={창업자금:6,비즈니스모델:6,경영관리:6}}, group_sub_keys=['창업자금', '비즈니스모델', '경영관리'], final_weights_len=13
+[2026-01-13 12:09:47,187] [INFO] [GROUP RESULT] final_weights_len=13
+[2026-01-13 12:13:43,338] [INFO] [GROUP AHP] sheets=6, crit_mats=6, sub_mats={창업자금:6,비즈니스모델:6,경영관리:6}}, group_sub_keys=['창업자금', '비즈니스모델', '경영관리'], final_weights_len=13
+[2026-01-13 12:13:43,338] [INFO] [GROUP RESULT] final_weights_len=13
+[2026-01-13 12:25:41,259] [INFO] [AHP SAVE PRE] respondent=True, crit_cr=0.1797, threshold=0.2, crit_matrix_shape=(3, 3), sub_keys=['창업자금', '비즈니스모델', '경영관리']
+[2026-01-13 12:25:41,335] [INFO] [SAVE OK] C:\Users\jaehyunlee\repos\ahp\data\survey_results.xlsx (sheet=S260113_122541_0138F4), cwd=C:\Users\jaehyunlee\repos\ahp
+[2026-01-13 12:28:18,894] [INFO] [AHP SAVE PRE] respondent=True, crit_cr=0.0559, threshold=0.2, crit_matrix_shape=(3, 3), sub_keys=['창업자금', '비즈니스모델', '경영관리']
+[2026-01-13 12:28:18,989] [INFO] [SAVE OK] C:\Users\jaehyunlee\repos\ahp\data\survey_results.xlsx (sheet=S260113_122818_1FF827), cwd=C:\Users\jaehyunlee\repos\ahp
+[2026-01-13 14:09:47,727] [INFO] [AHP SAVE PRE] respondent=True, crit_cr=0.1576, threshold=0.2, crit_matrix_shape=(3, 3), sub_keys=['창업자금', '비즈니스모델', '경영관리']
+[2026-01-13 14:09:47,839] [INFO] [SAVE OK] C:\Users\jaehyunlee\repos\ahp\data\survey_results.xlsx (sheet=S260113_140947_BE2D64), cwd=C:\Users\jaehyunlee\repos\ahp
+[2026-01-13 14:58:58,903] [INFO] [GROUP AHP] sheets=8, crit_mats=8, sub_mats={창업자금:8,비즈니스모델:8,경영관리:8}}, group_sub_keys=['창업자금', '비즈니스모델', '경영관리'], final_weights_len=13
+[2026-01-13 14:58:58,903] [INFO] [GROUP RESULT] final_weights_len=13
+[2026-01-13 14:59:13,987] [INFO] [GROUP AHP] sheets=8, crit_mats=8, sub_mats={창업자금:8,비즈니스모델:8,경영관리:8}}, group_sub_keys=['창업자금', '비즈니스모델', '경영관리'], final_weights_len=13
+[2026-01-13 14:59:13,987] [INFO] [GROUP RESULT] final_weights_len=13
+[2026-01-13 15:14:47,171] [INFO] [AHP SAVE PRE] respondent=True, crit_cr=0.0109, threshold=0.2, crit_matrix_shape=(3, 3), sub_keys=['창업자금', '비즈니스모델', '경영관리']
+[2026-01-13 15:14:47,275] [INFO] [SAVE OK] C:\Users\jaehyunlee\repos\ahp\data\survey_results.xlsx (sheet=S260113_151447_63C1C7), cwd=C:\Users\jaehyunlee\repos\ahp
+[2026-01-13 15:14:54,607] [INFO] [GROUP AHP] sheets=9, crit_mats=9, sub_mats={창업자금:9,비즈니스모델:9,경영관리:9}}, group_sub_keys=['창업자금', '비즈니스모델', '경영관리'], final_weights_len=13
+[2026-01-13 15:14:54,607] [INFO] [GROUP RESULT] final_weights_len=13
+[2026-01-13 16:48:38,080] [INFO] [AHP SAVE PRE] respondent=True, crit_cr=0.1576, threshold=0.2, crit_matrix_shape=(3, 3), sub_keys=['창업자금', '비즈니스모델', '경영관리']
+[2026-01-13 16:48:38,220] [INFO] [SAVE OK] C:\Users\jaehyunlee\repos\ahp\data\survey_results.xlsx (sheet=S260113_164838_21B712), cwd=C:\Users\jaehyunlee\repos\ahp
+[2026-01-13 16:52:48,898] [INFO] [AHP SAVE PRE] respondent=True, crit_cr=0.1169, threshold=0.2, crit_matrix_shape=(3, 3), sub_keys=['창업자금', '비즈니스모델', '경영관리']
+[2026-01-13 16:52:49,015] [INFO] [SAVE OK] C:\Users\jaehyunlee\repos\ahp\data\survey_results.xlsx (sheet=S260113_165248_734F63), cwd=C:\Users\jaehyunlee\repos\ahp
+[2026-01-13 16:57:38,738] [INFO] [AHP SAVE PRE] respondent=True, crit_cr=0.0000, threshold=0.2, crit_matrix_shape=(3, 3), sub_keys=['창업자금', '비즈니스모델', '경영관리']
+[2026-01-13 16:57:38,855] [INFO] [SAVE OK] C:\Users\jaehyunlee\repos\ahp\data\survey_results.xlsx (sheet=S260113_165738_DCC11F), cwd=C:\Users\jaehyunlee\repos\ahp
+[2026-01-13 16:58:24,400] [INFO] [AHP SAVE PRE] respondent=True, crit_cr=0.0000, threshold=0.2, crit_matrix_shape=(3, 3), sub_keys=['창업자금', '비즈니스모델', '경영관리']
+[2026-01-13 16:58:24,532] [INFO] [SAVE OK] C:\Users\jaehyunlee\repos\ahp\data\survey_results.xlsx (sheet=S260113_165824_4E0804), cwd=C:\Users\jaehyunlee\repos\ahp
+[2026-01-13 17:04:06,258] [INFO] [AHP SAVE PRE] respondent=True, crit_cr=0.0000, threshold=0.2, crit_matrix_shape=(3, 3), sub_keys=['창업자금', '비즈니스모델', '경영관리']
+[2026-01-13 17:04:06,393] [INFO] [SAVE OK] C:\Users\jaehyunlee\repos\ahp\data\survey_results.xlsx (sheet=S260113_170406_EAF615), cwd=C:\Users\jaehyunlee\repos\ahp
+[2026-01-13 17:17:26,533] [INFO] [AHP SAVE PRE] respondent=True, crit_cr=0.1169, threshold=0.2, crit_matrix_shape=(3, 3), sub_keys=['창업자금', '비즈니스모델', '경영관리']
+[2026-01-13 17:17:26,675] [INFO] [SAVE OK] C:\Users\jaehyunlee\repos\ahp\data\survey_results.xlsx (sheet=S260113_171726_DC73CD), cwd=C:\Users\jaehyunlee\repos\ahp
+[2026-01-13 17:24:09,866] [INFO] [AHP SAVE PRE] respondent=True, crit_cr=0.1169, threshold=0.2, crit_matrix_shape=(3, 3), sub_keys=['창업자금', '비즈니스모델', '경영관리']
+[2026-01-13 17:24:10,025] [INFO] [SAVE OK] C:\Users\jaehyunlee\repos\ahp\data\survey_results.xlsx (sheet=S260113_172409_1A124C), cwd=C:\Users\jaehyunlee\repos\ahp
+[2026-01-13 17:26:08,449] [INFO] [AHP SAVE PRE] respondent=True, crit_cr=0.0251, threshold=0.2, crit_matrix_shape=(3, 3), sub_keys=['창업자금', '비즈니스모델', '경영관리']
+[2026-01-13 17:26:08,592] [INFO] [SAVE OK] C:\Users\jaehyunlee\repos\ahp\data\survey_results.xlsx (sheet=S260113_172608_C82BE3), cwd=C:\Users\jaehyunlee\repos\ahp
+[2026-01-13 17:39:56,698] [INFO] [AHP SAVE PRE] respondent=True, crit_cr=0.1797, threshold=0.2, crit_matrix_shape=(3, 3), sub_keys=['창업자금', '비즈니스모델', '경영관리']
+[2026-01-13 17:39:56,853] [INFO] [SAVE OK] C:\Users\jaehyunlee\repos\ahp\data\survey_results.xlsx (sheet=S260113_173956_E6852E), cwd=C:\Users\jaehyunlee\repos\ahp
+[2026-01-14 10:58:06,043] [INFO] [GROUP AHP] sheets=15, crit_mats=15, sub_mats={창업자금:15,비즈니스모델:15,경영관리:15}}, group_sub_keys=['창업자금', '비즈니스모델', '경영관리'], final_weights_len=13
+[2026-01-14 10:58:06,043] [INFO] [GROUP RESULT] final_weights_len=13
+[2026-01-14 17:02:48,976] [INFO] [GROUP AHP] sheets=15, crit_mats=15, sub_mats={창업자금:15,비즈니스모델:15,경영관리:15}}, group_sub_keys=['창업자금', '비즈니스모델', '경영관리'], final_weights_len=13
+[2026-01-14 17:02:48,976] [INFO] [GROUP RESULT] final_weights_len=13
+[2026-01-14 17:03:03,266] [INFO] [GROUP AHP] sheets=27, crit_mats=27, sub_mats={창업자금:27,비즈니스모델:27,경영관리:27}}, group_sub_keys=['창업자금', '비즈니스모델', '경영관리'], final_weights_len=13
+[2026-01-14 17:03:03,266] [INFO] [GROUP RESULT] final_weights_len=13
+[2026-01-14 19:12:31,107] [INFO] [GROUP AHP] sheets=15, crit_mats=15, sub_mats={창업자금:15,비즈니스모델:15,경영관리:15}}, group_sub_keys=['창업자금', '비즈니스모델', '경영관리'], final_weights_len=13
+[2026-01-14 19:12:31,107] [INFO] [GROUP RESULT] final_weights_len=13
+[2026-01-15 01:09:39,765] [INFO] [GROUP AHP] sheets=15, crit_mats=15, sub_mats={창업자금:15,비즈니스모델:15,경영관리:15}}, group_sub_keys=['창업자금', '비즈니스모델', '경영관리'], final_weights_len=13
+[2026-01-15 01:09:39,765] [INFO] [GROUP RESULT] final_weights_len=13
+[2026-01-15 01:49:04,803] [INFO] [GROUP AHP] sheets=15, crit_mats=15, sub_mats={창업자금:15,비즈니스모델:15,경영관리:15}}, group_sub_keys=['창업자금', '비즈니스모델', '경영관리'], final_weights_len=13
+[2026-01-15 01:49:04,803] [INFO] [GROUP RESULT] final_weights_len=13
+[2026-01-15 16:12:43,169] [INFO] [GROUP AHP] sheets=15, crit_mats=15, sub_mats={창업자금:15,비즈니스모델:15,경영관리:15}}, group_sub_keys=['창업자금', '비즈니스모델', '경영관리'], final_weights_len=13
+[2026-01-15 16:12:43,169] [INFO] [GROUP RESULT] final_weights_len=13

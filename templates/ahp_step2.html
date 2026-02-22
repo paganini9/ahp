@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AHP 기반 애로요인 분석 설문 - 2단계</title>
+  <style>
+    body { font-family: sans-serif; line-height: 1.6; margin: 20px; }
+    h1, h2, h3 { color: #333; }
+    form { background: #f9f9f9; padding: 20px; border-radius: 8px; }
+    .question-group { margin-bottom: 30px; border-bottom: 1px solid #ddd; padding-bottom: 20px; }
+
+    /* ✅ 비교 한 줄을 "보이지 않는 테이블"처럼 고정 정렬 */
+    .comparison {
+        display: grid;
+        grid-template-columns: 220px 1fr 220px; /* 좌/중앙/우 */
+        gap: 12px;
+        align-items: center;
+        margin-bottom: 14px;
+    }
+
+    .item-left { text-align: right; font-weight: 600; }
+    .item-right { text-align: left; font-weight: 600; }
+
+    /* ✅ 선택지 9개를 동일 폭 컬럼으로 고정 => 중앙 '1' 세로 정렬 */
+    .options {
+        display: grid;
+        grid-template-columns: repeat(9, minmax(44px, 1fr));
+        gap: 6px;
+        align-items: center;
+        justify-items: center;
+    }
+
+    /* 라벨(버튼 느낌) */
+    .opt {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        padding: 6px 8px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        background: white;
+        cursor: pointer;
+        user-select: none;
+        font-size: 14px;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .opt input[type="radio"] { margin: 0; }
+
+    /* 체크 시 강조 */
+    .opt input[type="radio"]:checked + span {
+        font-weight: 700;
+        color: #007bff;
+    }
+
+    /* 가운데 1 컬럼을 살짝 강조(선택사항) */
+    .opt.center {
+        border-color: #cfe8ff;
+        background: #f6fbff;
+    }
+    
+    /* ✅ Flash 메시지: 더 강한 대비 + 상단 고정 */
+    .flash-wrap{
+    position: sticky;
+    top: 0;
+    z-index: 9999;
+    margin-bottom: 16px;
+    }
+
+    .flash{
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 14px 16px;
+    border-radius: 12px;
+    border: 1px solid transparent;
+    font-size: 15px;
+    font-weight: 700;
+    box-shadow: 0 8px 18px rgba(0,0,0,0.08);
+    }
+
+    /* 아이콘(가상요소) */
+    .flash::before{
+    content: "⚠️";
+    font-size: 18px;
+    line-height: 1.2;
+    margin-top: 1px;
+    }
+
+    /* 에러 */
+    .flash.error{
+    color: #ffffff;
+    background: #d92d20;      /* 강한 빨강 */
+    border-color: #b42318;
+    }
+
+    /* 성공/경고도 같이(필요 시) */
+    .flash.success{
+    color:#ffffff;
+    background:#16a34a;
+    border-color:#15803d;
+    }
+    .flash.warning{
+    color:#111827;
+    background:#fbbf24;
+    border-color:#f59e0b;
+    }
+
+    /* 메시지 안의 링크/강조 */
+    .flash a{ color:#ffffff; text-decoration: underline; }
+    .flash.warning a{ color:#111827; }
+
+
+
+    button { background-color: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; }
+    button:hover { background-color: #0056b3; }
+    </style>
+
+</head>
+<body>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+        <div class="flash {{ category }}">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+    {% endwith %}
+
+  <h1>AHP 기반 애로요인 분석 설문</h1>
+  <h2>2단계: 세부 항목 중요도 비교</h2>
+  
+  <div class="hint">
+    <b>응답 방법</b><br>
+    • 값이 <b>클수록 왼쪽 항목</b>이 더 중요하다는 뜻입니다.<br>
+    • 오른쪽 항목이 더 중요하면 <b>1/2, 1/3 …</b>처럼 <b>1/값</b>을 선택해주세요.<br>
+    • <b>1</b>은 “두 항목이 비슷하게 중요”입니다.<br>
+    • 모든 문항은 <b>반드시 하나씩 선택</b>해야 다음 단계로 넘어갈 수 있습니다.
+  </div>
+
+  <form method="post" action="{{ url_for('ahp_survey_step2') }}">
+    <p style="color:#555;">
+        • 값이 <b>클수록 왼쪽 항목</b>이 더 중요합니다. 오른쪽이 더 중요하면 <b>1/2, 1/3 …</b>을 선택하세요. (1은 동일)
+    </p>
+
+    {% for crit, pairs in sub_criteria_pairs.items() %}
+        <div class="question-group">
+        <h3>{{ crit }} 그룹 내 세부 항목 중요도 비교</h3>
+
+        <!-- ✅ 그룹별 CR 표시 (해당 그룹 섹션에 고정 노출) -->
+        <div class="cr-inline"
+            data-crit="{{ crit }}"
+            style="position:sticky; top:0; z-index:5;
+                    margin:8px 0 12px; padding:10px 12px;
+                    border:1px solid #e5e7eb; border-radius:10px; background:#fff;">
+        <span style="font-weight:800;">{{ crit }}</span>
+        <span style="margin-left:8px; color:#6b7280;" class="cr-text">모든 문항 선택 후 CR 계산</span>
+        </div>
+
+        {% for item1, item2 in pairs %}
+            {% set radio_name = 'sub_' + crit + '_' + item1 + '_' + item2 %}
+            {% set scale_values = ['9','7','5','3','1','1/3','1/5','1/7','1/9'] %}
+
+            <div class="comparison">
+                <div class="item-left">{{ item1 }}</div>
+
+                <div class="options">
+                {% for v in scale_values %}
+                    {% set is_checked = False %}
+                    {% if form_data and form_data[radio_name] is defined %}
+                    {% if form_data[radio_name] == v %}{% set is_checked = True %}{% endif %}
+                    {% elif v == '1' %}
+                    {% set is_checked = True %}
+                    {% endif %}
+
+                    <label class="opt {% if v == '1' %}center{% endif %}">
+                    <input type="radio"
+                            name="{{ radio_name }}"
+                            value="{{ v }}"
+                            {% if is_checked %}checked{% endif %}
+                            {% if loop.first %}required{% endif %}>
+                    <span>{{ v }}</span>
+                    </label>
+                {% endfor %}
+                </div>
+
+                <div class="item-right">{{ item2 }}</div>
+            </div>
+        {% endfor %}
+
+
+        </div>
+    {% endfor %}
+
+    <div style="display:flex; gap:10px;">
+        <!-- 이전: Step2 자체로 POST -->
+        <button type="submit" name="action" value="back" formnovalidate>이전(1단계로)</button>
+
+        <!-- 결과분석: submit2로 POST -->
+        <button type="submit"
+                formaction="/ahp/submit2"
+                formmethod="post"
+                name="action"
+                value="submit">
+            결과 분석하기
+        </button>
+    </div>
+
+    </form>
+    <script>
+        document.querySelector('button[value="submit"]').addEventListener('click', function (e) {
+        const form = this.closest('form');
+
+        // 브라우저 기본 유효성 검사
+        if (!form.checkValidity()) {
+            e.preventDefault();
+
+            // 아직 선택 안 된 radio 그룹 찾기
+            const requiredRadios = form.querySelectorAll('input[type="radio"][required]');
+            for (const r of requiredRadios) {
+            const name = r.name;
+            const checked = form.querySelector(`input[type="radio"][name="${CSS.escape(name)}"]:checked`);
+            if (!checked) {
+                // 해당 required 라디오가 들어있는 comparison 블록으로 스크롤
+                const comp = r.closest('.comparison');
+                if (comp) {
+                comp.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                comp.style.outline = '2px solid #dc3545';
+                comp.style.borderRadius = '8px';
+                setTimeout(() => comp.style.outline = '', 1500);
+                }
+                break;
+            }
+            }
+
+            // 브라우저가 기본 메시지 보여주도록
+            form.reportValidity();
+        }
+        });
+    </script>
+    <script>
+        (function() {
+        const API_URL = "/ahp/api/cr/step2";
+
+        // 해당 그룹 섹션에 있는 CR 표시 div들을 맵으로 만든다.
+        const crBlocks = {};
+        document.querySelectorAll(".cr-inline[data-crit]").forEach(el => {
+            const crit = el.getAttribute("data-crit");
+            crBlocks[crit] = el;
+        });
+
+        function getFormValues() {
+            const form = document.querySelector("form");
+            const data = {};
+            if (!form) return data;
+            form.querySelectorAll('input[type="radio"]:checked').forEach(r => {
+            data[r.name] = r.value;
+            });
+            return data;
+        }
+
+        function setBlock(crit, text, state) {
+            // state: "wait" | "ok" | "bad"
+            const el = crBlocks[crit];
+            if (!el) return;
+
+            const textEl = el.querySelector(".cr-text");
+            if (!textEl) return;
+
+            textEl.textContent = text;
+
+            // 스타일
+            if (state === "ok") {
+            el.style.borderColor = "#16a34a";
+            el.style.background = "#f0fdf4";
+            textEl.style.color = "#166534";
+            el.style.fontWeight = "700";
+            } else if (state === "bad") {
+            el.style.borderColor = "#d92d20";
+            el.style.background = "#fff1f2";
+            textEl.style.color = "#b42318";
+            el.style.fontWeight = "800";
+            } else {
+            el.style.borderColor = "#e5e7eb";
+            el.style.background = "#fff";
+            textEl.style.color = "#6b7280";
+            el.style.fontWeight = "400";
+            }
+        }
+
+        function render(payload) {
+            // payload.results: [{crit, ready, cr, ok, threshold}, ...]
+            if (!payload || !payload.results) {
+            // 전체 대기 상태로
+            Object.keys(crBlocks).forEach(crit => {
+                setBlock(crit, "모든 문항 선택 후 CR 계산", "wait");
+            });
+            return;
+            }
+
+            const threshold = (typeof payload.threshold === "number") ? payload.threshold : 0.2;
+
+            payload.results.forEach(r => {
+            const crit = r.crit;
+            if (!r.ready) {
+                setBlock(crit, "모든 문항 선택 후 CR 계산", "wait");
+                return;
+            }
+
+            const cr = (typeof r.cr === "number") ? r.cr : null;
+            const ok = !!r.ok;
+
+            const msg = `CR = ${cr !== null ? cr.toFixed(3) : "?"} (기준 ${threshold} 이하: ${ok ? "통과" : "미달"})`;
+            setBlock(crit, msg, ok ? "ok" : "bad");
+            });
+        }
+
+        let timer = null;
+
+        async function updateCR() {
+            try {
+            const formValues = getFormValues();
+            const res = await fetch(API_URL, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ form: formValues })
+            });
+            const payload = await res.json();
+            render(payload);
+            } catch (e) {
+            // 오류 시: 모두 대기 상태로만
+            Object.keys(crBlocks).forEach(crit => {
+                setBlock(crit, "CR 계산 중 오류(잠시 후 다시 시도)", "bad");
+            });
+            }
+        }
+
+        // 라디오 변경마다 디바운스로 업데이트
+        document.addEventListener("change", function(ev) {
+            const t = ev.target;
+            if (!t || t.type !== "radio") return;
+
+            if (timer) clearTimeout(timer);
+            timer = setTimeout(updateCR, 180);
+        });
+
+        // 진입 시 1회
+        updateCR();
+        })();
+    </script>
+
+
+</body>
+</html>

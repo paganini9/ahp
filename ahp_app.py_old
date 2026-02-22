@@ -1,0 +1,503 @@
+from flask import Flask, render_template, request, flash, redirect, url_for, session
+import numpy as np
+import itertools
+import pandas as pd
+from datetime import datetime
+import os
+
+app = Flask(__name__)
+# 환경 변수에서 Secret Key를 불러옴
+app.secret_key = os.environ.get('FLASK_SECRET_KEY')
+
+# 환경변수 비어 있을 경우 대비 (선택)
+if not app.secret_key:
+    raise RuntimeError("ERROR: FLASK_SECRET_KEY environment variable is not set.")
+
+# AHP 계층 구조 정의
+AHP_HIERARCHY = {
+    "goal": "애로요인 우선순위 분석",
+    "criteria": ["창업자금", "비즈니스모델", "경영관리"],
+    "sub_criteria": {
+        "창업자금": ["운영자금", "시설자금", "초기 자기자본", "투자유치"],
+        "비즈니스모델": ["사업타당성(BM)", "특허분쟁", "기술개발", "시장정보획득", "기술사업화"],
+        "경영관리": ["네트워크활용", "전문인력 확보", "판로개척", "해외시장개척"]
+    }
+}
+
+# Random Index (RI) for consistency check
+RI = {1: 0, 2: 0, 3: 0.58, 4: 0.90, 5: 1.12, 6: 1.24, 7: 1.32, 8: 1.41, 9: 1.45, 10: 1.49}
+
+def get_pairwise_comparisons(items):
+    """항목 리스트로부터 모든 쌍대비교 조합을 생성합니다."""
+    return list(itertools.combinations(items, 2))
+
+@app.route('/ahp/')
+def index():
+    """설문 시작 페이지. 설문 목적을 안내하고 응답자 정보를 입력받습니다."""
+    # 응답자 정보 선택 옵션 정의
+    respondent_options = {
+        "age_groups": ["20대", "30대", "40대", "50대", "60대 이상"],
+        "regions": ["대구", "경북(포항)", "경북(구미)", "경북(경산)", "경북(안동)", "경북(영천)", "경북(기타)"],
+        "fields": ["기술/IT", "제조", "도소매", "서비스(음식점 등)", "교육", "기타"],
+        "experience_levels": ["예비창업자", "1년 미만", "1~3년 미만", "3~7년 미만", "7년 이상"]
+    }
+    return render_template('index.html', options=respondent_options)
+
+@app.route('/ahp/start_survey', methods=['POST'])
+def start_survey():
+    """응답자 정보를 세션에 저장하고 설문 페이지로 리디렉션합니다."""
+    try:
+        # 기본 값 수집
+        age = request.form['age']
+        region = request.form['region']
+        field = request.form['field']
+        experience = request.form['experience']
+
+        # '기타' 선택 시 사용자가 입력한 값 우선 사용
+        if field == '기타':
+            field_other = request.form.get('field_other', '').strip()
+            if not field_other:
+                flash("창업 분야에서 '기타'를 선택하셨다면 직접 입력해주세요.", "error")
+                return redirect('/ahp/')
+            field = field_other
+
+        # 예비창업자가 아닌 경우 창업기업 이름을 필수로 입력 받음
+        company_name = None
+        if experience != '예비창업자':
+            company_name = request.form.get('company_name', '').strip()
+            if not company_name:
+                flash("창업 연차가 예비창업자가 아닌 경우 창업기업 이름을 입력해주세요.", "error")
+                return redirect('/ahp/')
+       
+        session['respondent_info'] = {
+            "age": age,
+            "region": region,
+            "field": field,
+            "experience": experience,
+            "company_name": company_name
+        }
+        return redirect('/ahp/survey')
+    except KeyError:
+        flash("모든 정보를 선택해주세요.", "error")
+        return redirect('/ahp/')
+
+@app.route('/ahp/survey')
+def ahp_survey():
+    """AHP 설문 페이지를 렌더링합니다."""
+    # 일관성 검사 실패 시 이전 입력값을 불러오기 위해 세션에서 form_data를 가져옴
+    form_data = session.pop('form_data', None)
+
+    # 1단계: 주 기준(criteria) 쌍대비교
+    criteria_pairs = get_pairwise_comparisons(AHP_HIERARCHY["criteria"])
+    
+    # 2단계: 하위 기준(sub-criteria) 쌍대비교
+    sub_criteria_pairs = {}
+    for crit, sub_crits in AHP_HIERARCHY["sub_criteria"].items():
+        sub_criteria_pairs[crit] = get_pairwise_comparisons(sub_crits)
+
+    return render_template('ahp_survey.html', 
+                           hierarchy=AHP_HIERARCHY,
+                           criteria_pairs=criteria_pairs,
+                           sub_criteria_pairs=sub_criteria_pairs,
+                           form_data=form_data)
+
+def calculate_ahp_weights(items, comparisons):
+    """쌍대비교 행렬을 생성하고 가중치 및 일관성 비율을 계산합니다."""
+    n = len(items)
+    matrix = np.ones((n, n))
+    item_to_idx = {item: i for i, item in enumerate(items)}
+
+    if n > 1:
+        for (item1, item2), value in comparisons.items():
+            i, j = item_to_idx[item1], item_to_idx[item2]
+            matrix[i, j] = value
+            matrix[j, i] = 1 / value
+
+    # 가중치 계산 (Eigenvector Method)
+    eigenvalues, eigenvectors = np.linalg.eig(matrix)
+    max_eigenvalue = np.max(eigenvalues.real)
+    max_eigenvector = eigenvectors[:, np.argmax(eigenvalues.real)].real
+    weights = max_eigenvector / np.sum(max_eigenvector)
+
+    # 일관성 검증
+    ci = (max_eigenvalue - n) / (n - 1)
+    cr = ci / RI[n] if n in RI and RI[n] > 0 else 0
+
+    is_consistent = cr < 0.1
+
+    return matrix, weights, max_eigenvalue, ci, cr, is_consistent
+
+def save_to_excel(respondent_info, crit_matrix, crit_items, sub_matrices, sub_items_map): # 함수 전체를 교체합니다.
+    """분석 결과를 엑셀 파일의 새 시트에 저장합니다."""
+    filename = "survey_results.xlsx"
+    sheet_name = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+
+    # 1. 모든 데이터를 데이터프레임 리스트로 준비
+    dfs_to_write = []
+
+    # 1-1. 응답자 정보
+    respondent_df = pd.DataFrame([respondent_info])
+    dfs_to_write.append(respondent_df)
+
+    # 1-2. 주 기준 쌍대비교 행렬
+    dfs_to_write.append(pd.DataFrame([["주요 항목 그룹 비교 행렬"]])) # 제목
+    crit_df = pd.DataFrame(crit_matrix, index=crit_items, columns=crit_items)
+    dfs_to_write.append(crit_df)
+
+    # 1-3. 하위 기준 쌍대비교 행렬
+    for crit_name, matrix in sub_matrices.items():
+        sub_items = sub_items_map[crit_name]
+        dfs_to_write.append(pd.DataFrame([[f"'{crit_name}' 그룹 내 세부 항목 비교 행렬"]])) # 제목
+        sub_df = pd.DataFrame(matrix, index=sub_items, columns=sub_items)
+        dfs_to_write.append(sub_df)
+
+    # 2. 준비된 데이터프레임들을 엑셀에 한 번에 쓰기
+    try:
+        # ExcelWriter를 append 모드로 열기
+        with pd.ExcelWriter(filename, engine='openpyxl', mode='a' if os.path.exists(filename) else 'w', if_sheet_exists='overlay') as writer:
+            current_row = 0
+            # 첫 번째 데이터프레임(응답자 정보)은 헤더와 함께 씀
+            dfs_to_write[0].to_excel(writer, sheet_name=sheet_name, index=False, header=True, startrow=current_row)
+            current_row += len(dfs_to_write[0]) + 1 + 2 # 데이터 행 + 헤더 + 2줄 공백
+
+            # 나머지 데이터프레임들을 순차적으로 씀
+            for i, df in enumerate(dfs_to_write[1:]):
+                # 제목 행인 경우 (컬럼이 하나)
+                if len(df.columns) == 1 and i % 2 == 0:
+                     df.to_excel(writer, sheet_name=sheet_name, index=False, header=False, startrow=current_row)
+                     current_row += len(df) # 제목 행
+                # 데이터 행인 경우
+                else:
+                    df.to_excel(writer, sheet_name=sheet_name, index=True, header=True, startrow=current_row)
+                    current_row += len(df) + 1 + 2 # 데이터 행 + 헤더 + 2줄 공백
+    except Exception as e:
+        app.logger.error(f"Excel save error: {e}")
+        raise e
+
+
+def save_group_result_to_excel(num_respondents, crit_matrix, crit_items, sub_matrices, sub_items_map, final_weights):
+    """그룹 분석 결과를 엑셀 파일에 저장합니다."""
+    filename = "group_analysis_result.xlsx"
+    sheet_name = f"Group_Result_{num_respondents}명"
+
+    with pd.ExcelWriter(filename, engine='openpyxl', mode='w') as writer:
+        # 1. 분석 정보 저장
+        info_df = pd.DataFrame([{"분석 참여 인원": num_respondents}])
+        info_df.to_excel(writer, sheet_name=sheet_name, index=False, startrow=0)
+        current_row = len(info_df) + 2
+
+        # 2. 주 기준 통합 쌍대비교 행렬 저장
+        crit_df = pd.DataFrame(crit_matrix, index=crit_items, columns=crit_items)
+        pd.DataFrame([["주요 항목 그룹 통합 비교 행렬 (기하평균)"]]).to_excel(writer, sheet_name=sheet_name, index=False, header=False, startrow=current_row)
+        current_row += 1
+        crit_df.to_excel(writer, sheet_name=sheet_name, startrow=current_row)
+        current_row += len(crit_df) + 2
+
+        # 3. 하위 기준 통합 쌍대비교 행렬 저장
+        for crit_name, matrix in sub_matrices.items():
+            sub_items = sub_items_map[crit_name]
+            sub_df = pd.DataFrame(matrix, index=sub_items, columns=sub_items)
+            pd.DataFrame([[f"'{crit_name}' 그룹 내 세부 항목 통합 비교 행렬 (기하평균)"]]).to_excel(writer, sheet_name=sheet_name, index=False, header=False, startrow=current_row)
+            current_row += 1
+            sub_df.to_excel(writer, sheet_name=sheet_name, startrow=current_row)
+            current_row += len(sub_df) + 2
+
+        # 4. 최종 가중치 및 순위 저장
+        final_weights_df = pd.DataFrame(final_weights, columns=['세부 항목', '종합 가중치'])
+        final_weights_df['순위'] = final_weights_df['종합 가중치'].rank(method='dense', ascending=False).astype(int)
+        pd.DataFrame([["최종 우선순위 결과"]]).to_excel(writer, sheet_name=sheet_name, index=False, header=False, startrow=current_row)
+        current_row += 1
+        final_weights_df[['순위', '세부 항목', '종합 가중치']].to_excel(writer, sheet_name=sheet_name, index=False, startrow=current_row)
+
+@app.route('/ahp/submit', methods=['POST'])
+def ahp_submit():
+    """설문 결과를 받아 AHP 분석을 수행하고 결과를 보여줍니다."""
+    try:
+        # 1단계: 주 기준(criteria) 결과 처리
+        criteria = AHP_HIERARCHY["criteria"]
+        criteria_comparisons = {}
+        for item1, item2 in get_pairwise_comparisons(criteria):
+            key = f"criteria_{item1}_{item2}"
+            value = float(request.form[key])
+            criteria_comparisons[(item1, item2)] = value
+        
+        crit_matrix, crit_weights, _, _, crit_cr, crit_consistent = calculate_ahp_weights(criteria, criteria_comparisons)
+        
+        if not crit_consistent:
+            flash(f"주요 항목 그룹('창업자금', '비즈니스모델', '경영관리') 비교 응답의 일관성이 부족합니다. (CR = {crit_cr:.3f} >= 0.1). 다시 신중하게 응답해주세요.", "error")
+            session['form_data'] = request.form.to_dict(flat=True)
+            return redirect('/ahp/survey')
+
+        crit_weights_map = {crit: weight for crit, weight in zip(criteria, crit_weights)}
+
+        # 2단계: 하위 기준(sub-criteria) 결과 처리 및 전체 가중치 계산
+        sub_criteria_results = {}
+        final_weights = {}
+        sub_matrices = {}
+
+        for crit, sub_crits in AHP_HIERARCHY["sub_criteria"].items():
+            sub_comparisons = {}
+            if len(sub_crits) > 1:
+                for item1, item2 in get_pairwise_comparisons(sub_crits):
+                    key = f"sub_{crit}_{item1}_{item2}"
+                    value = float(request.form[key])
+                    sub_comparisons[(item1, item2)] = value
+            
+                sub_matrix, sub_weights, _, _, sub_cr, sub_consistent = calculate_ahp_weights(sub_crits, sub_comparisons)
+                sub_matrices[crit] = sub_matrix
+                
+                if not sub_consistent:
+                    flash(f"'{crit}' 그룹 내 항목 비교 응답의 일관성이 부족합니다. (CR = {sub_cr:.3f} >= 0.1). 다시 신중하게 응답해주세요.", "error")
+                    session['form_data'] = request.form.to_dict(flat=True)
+                    return redirect('/ahp/survey')
+
+                sub_weights_map = {sub: w for sub, w in zip(sub_crits, sub_weights)}
+                sub_criteria_results[crit] = {"weights": sub_weights_map, "cr": sub_cr}
+
+                # 전체 가중치 계산
+                for sub_crit, sub_weight in sub_weights_map.items():
+                    final_weights[sub_crit] = crit_weights_map[crit] * sub_weight
+            elif len(sub_crits) == 1: # 항목이 하나인 경우
+                sub_crit = sub_crits[0]
+                sub_criteria_results[crit] = {"weights": {sub_crit: 1.0}, "cr": 0}
+                sub_matrices[crit] = np.array([[1.0]])
+                final_weights[sub_crit] = crit_weights_map[crit] * 1.0
+
+
+        # 최종 우선순위 정렬
+        sorted_final_weights = sorted(final_weights.items(), key=lambda item: item[1], reverse=True)
+
+        # 세션에서 응답자 정보 가져오고 엑셀에 저장
+        respondent_info = session.get('respondent_info', {})
+        try:
+            save_to_excel(respondent_info=respondent_info,
+                          crit_matrix=crit_matrix, crit_items=criteria,
+                          sub_matrices=sub_matrices, sub_items_map=AHP_HIERARCHY["sub_criteria"])
+        except Exception as e:
+            app.logger.error(f"Excel save error: {e}")
+            flash("결과를 엑셀 파일에 저장하는 중 오류가 발생했습니다.", "warning")
+
+        return render_template('ahp_result.html',
+                               crit_weights=crit_weights_map,
+                               crit_cr=crit_cr,
+                               sub_criteria_results=sub_criteria_results,
+                               final_weights=sorted_final_weights,
+                               respondent_info=respondent_info)
+
+    except (KeyError, ValueError) as e:
+        app.logger.error(f"Form processing error: {e}")
+        flash("모든 항목에 응답해주세요.", "error")        
+        session['form_data'] = request.form.to_dict(flat=True)
+        return redirect('/ahp/survey')
+    except Exception as e:
+        app.logger.error(f"An unexpected error occurred: {e}")
+        flash("오류가 발생했습니다. 다시 시도해주세요.", "error")
+        session['form_data'] = request.form.to_dict(flat=True)
+        return redirect('/ahp/survey')
+
+# (기존 ahp_app.py 코드... 이어서 아래 코드를 추가합니다)
+
+from functools import reduce
+import operator
+
+def geometric_mean(values):
+    """주어진 값들의 기하평균을 계산합니다."""
+    values = [v for v in values if v > 0] # 0 또는 음수는 제외
+    if not values:
+        return 1
+    return reduce(operator.mul, values) ** (1.0 / len(values))
+
+@app.route('/ahp/group_result')
+def group_ahp_result():
+    """모든 응답자 데이터를 종합하여 그룹 AHP 분석 결과를 보여줍니다."""
+    filename = "survey_results.xlsx"
+    if not os.path.exists(filename):
+        flash("분석할 설문 결과 파일이 없습니다.", "error")
+        return redirect('/ahp/')
+
+    try:
+        xls = pd.ExcelFile(filename)
+        sheet_names = xls.sheet_names
+
+        crit_items = AHP_HIERARCHY["criteria"]              # 예: ["창업자금","비즈니스모델","경영관리"]
+        sub_criteria = AHP_HIERARCHY["sub_criteria"]        # dict
+        n_crit = len(crit_items)
+        
+        # 1. 모든 시트에서 쌍대비교 행렬 데이터 추출
+        all_crit_matrices = []
+        all_sub_matrices = {crit: [] for crit in sub_criteria.keys()}
+
+        crit_items = AHP_HIERARCHY["criteria"]
+        n_crit = len(crit_items)
+
+        for sheet in sheet_names:
+             # 시트 전체를 헤더 없이 읽기
+            raw = pd.read_excel(xls, sheet_name=sheet, header=None)
+
+            # ---------- 1) 주요 기준 쌍대비교 행렬 찾기 ----------
+            crit_header_row = None
+            for r_idx, row in raw.iterrows():
+                # 해당 행에 모든 crit_items 가 컬럼 값으로 들어있는지 검사
+                values = [v for v in row.values if not pd.isna(v)]
+                if all(item in values for item in crit_items):
+                    crit_header_row = r_idx
+                    break
+
+            if crit_header_row is None:
+                raise ValueError(f"{sheet} 시트에서 주요 기준 헤더 행을 찾지 못했습니다.")
+            
+            # 헤더 행 바로 아래부터 n_crit 행이 실제 행렬 데이터
+            crit_data_rows = raw.iloc[crit_header_row + 1 : crit_header_row + 1 + n_crit, :]
+
+            # 헤더 행에서 각 기준이 있는 컬럼 인덱스 찾기
+            header_vals = list(raw.iloc[crit_header_row])
+            crit_col_indices = [i for i, v in enumerate(header_vals) if v in crit_items]
+
+            first_col = crit_col_indices[0]
+            last_col = crit_col_indices[-1]
+
+
+            # 첫 번째 컬럼은 행 이름(창업자금, 비즈니스모델, ...) / 나머지는 실수 값
+            crit_df = crit_data_rows.iloc[:, first_col - 1 : last_col + 1]
+            crit_df.columns = ["_row"] + crit_items
+            crit_df = crit_df.set_index("_row")
+
+            # 숫자로 변환
+            crit_df = crit_df.apply(pd.to_numeric, errors="raise")
+            all_crit_matrices.append(crit_df.values)
+
+            # ---------- 2) 각 하위 기준 쌍대비교 행렬 찾기 ----------
+            for crit_name, sub_items in sub_criteria.items():
+                if not sub_items:
+                    continue
+
+                title = f"'{crit_name}' 그룹 내 세부 항목 비교 행렬"
+
+                # 제목 행 찾기
+                title_row = None
+                for r_idx, v in enumerate(raw[0]):  # 첫 번째 컬럼에 제목이 들어 있음
+                    if str(v).strip() == title:
+                        title_row = r_idx
+                        break
+
+                if title_row is None:
+                    # 해당 기준의 하위 행렬이 없는 경우 (혹은 아직 설문에 안 쓴 경우) 건너뜀
+                    continue
+
+                header_row = title_row + 1
+                header_vals = list(raw.iloc[header_row])
+                sub_col_indices = [i for i, v in enumerate(header_vals) if v in sub_items]
+
+                if not sub_col_indices:
+                    raise ValueError(f"{sheet} 시트에서 '{crit_name}' 하위 기준 헤더를 찾지 못했습니다.")
+
+                first_col = sub_col_indices[0]
+                last_col = sub_col_indices[-1]
+                n_sub = len(sub_items)
+
+                # 헤더 아래 n_sub 행이 실제 데이터
+                sub_data_rows = raw.iloc[header_row + 1 : header_row + 1 + n_sub, :]
+
+                sub_df = sub_data_rows.iloc[:, first_col - 1 : last_col + 1]
+                sub_df.columns = ["_row"] + sub_items
+                sub_df = sub_df.set_index("_row")
+
+                # 숫자로 변환
+                sub_df = sub_df.apply(pd.to_numeric, errors="raise")
+                all_sub_matrices[crit_name].append(sub_df.values)
+
+
+        # 2. 기하평균을 이용한 행렬 통합
+        # 주요 항목 통합 행렬
+        group_crit_matrix = np.ones((n_crit, n_crit))
+        for i in range(n_crit):
+            for j in range(n_crit):
+                if i != j:
+                    values = [m[i, j] for m in all_crit_matrices]
+                    group_crit_matrix[i, j] = geometric_mean(values)
+
+        # 세부 항목 통합 행렬
+        group_sub_matrices = {}
+        for crit_name, sub_items in AHP_HIERARCHY["sub_criteria"].items():
+            matrices = all_sub_matrices[crit_name]
+            if matrices:
+                n_sub = len(sub_items)
+                group_sub_matrix = np.ones((n_sub, n_sub))
+                for i in range(n_sub):
+                    for j in range(n_sub):
+                        if i != j:
+                            values = [m[i, j] for m in matrices]
+                            group_sub_matrix[i, j] = geometric_mean(values)
+                group_sub_matrices[crit_name] = group_sub_matrix
+
+        # 3. 통합 행렬로 AHP 분석 수행 (가짜 comparisons 딕셔너리 사용)
+        # calculate_ahp_weights 함수는 matrix를 직접 받지 않으므로, 행렬을 다시 comparisons 형태로 변환
+        crit_comparisons = {(crit_items[i], crit_items[j]): group_crit_matrix[i, j] for i, j in itertools.combinations(range(n_crit), 2)}
+        _, crit_weights, _, _, crit_cr, _ = calculate_ahp_weights(crit_items, crit_comparisons)
+        crit_weights_map = {crit: weight for crit, weight in zip(crit_items, crit_weights)}
+
+        sub_criteria_results = {}
+        final_weights = {}
+        for crit, sub_crits in AHP_HIERARCHY["sub_criteria"].items():
+            if len(sub_crits) > 1:
+                sub_matrix = group_sub_matrices[crit]
+                sub_comparisons = {(sub_crits[i], sub_crits[j]): sub_matrix[i, j] for i, j in itertools.combinations(range(len(sub_crits)), 2)}
+                _, sub_weights, _, _, sub_cr, _ = calculate_ahp_weights(sub_crits, sub_comparisons)
+                sub_weights_map = {sub: w for sub, w in zip(sub_crits, sub_weights)}
+                sub_criteria_results[crit] = {"weights": sub_weights_map, "cr": sub_cr}
+                for sub_crit, sub_weight in sub_weights_map.items():
+                    final_weights[sub_crit] = crit_weights_map[crit] * sub_weight
+            elif len(sub_crits) == 1:
+                sub_crit = sub_crits[0]
+                sub_criteria_results[crit] = {"weights": {sub_crit: 1.0}, "cr": 0}
+                final_weights[sub_crit] = crit_weights_map[crit] * 1.0
+
+        sorted_final_weights = sorted(final_weights.items(), key=lambda item: item[1], reverse=True)
+
+        # 엑셀 저장을 위해 그룹 결과 저장 함수 호출
+        try:
+            save_group_result_to_excel(num_respondents=len(sheet_names),
+                                     crit_matrix=group_crit_matrix, crit_items=crit_items,
+                                     sub_matrices=group_sub_matrices, sub_items_map=AHP_HIERARCHY["sub_criteria"],
+                                     final_weights=sorted_final_weights)
+            flash("그룹 분석 결과를 'group_analysis_result.xlsx' 파일로 저장했습니다.", "success")
+        except Exception as e:
+            app.logger.error(f"Group Excel save error: {e}")
+            flash("그룹 분석 결과를 엑셀 파일에 저장하는 중 오류가 발생했습니다.", "warning")
+
+        # 4. 그룹 결과 페이지 렌더링
+        return render_template('ahp_result.html',
+                               crit_weights=crit_weights_map,
+                               crit_cr=crit_cr,
+                               sub_criteria_results=sub_criteria_results,
+                               final_weights=sorted_final_weights,
+                               respondent_info=None) # 그룹 분석 시에는 개별 응답자 정보가 없음
+
+    except Exception as e:
+        app.logger.error(f"Group AHP analysis error: {e}")
+        flash(f"그룹 분석 중 오류가 발생했습니다: {e}", "error")
+        return redirect('/ahp/')
+
+
+
+if __name__ == '__main__':
+    # templates 폴더가 ahp_app.py와 같은 위치에 있다고 가정합니다.
+    # 만약 다른 위치에 있다면 template_folder 인자를 사용하세요.
+    # 예: app = Flask(__name__, template_folder='../templates')
+    app.run(debug=True)
+
+
+"""
+AHP 쌍대비교 척도
+------------------------------------------------------------------
+| 중요도 | 정의                                       | 설명                                     |
+|--------|--------------------------------------------|------------------------------------------|
+| 1      | 두 항목이 동일하게 중요하다 (Equally important) | 두 항목이 목표에 동일하게 기여한다.        |
+| 3      | 한 항목이 다른 항목보다 약간 더 중요하다 (Moderately more important) | 경험과 판단에 의해 한 항목이 약간 선호된다. |
+| 5      | 한 항목이 다른 항목보다 훨씬 더 중요하다 (Strongly more important) | 경험과 판단에 의해 한 항목이 강력하게 선호된다.|
+| 7      | 한 항목이 다른 항목보다 매우 강력하게 중요하다 (Very strongly more important) | 한 항목이 매우 강력하게 선호되며, 실제 데이터로 증명된다. |
+| 9      | 한 항목이 다른 항목보다 절대적으로 더 중요하다 (Absolutely more important) | 한 항목이 다른 항목보다 절대적으로 선호되며, 그 증거가 명확하다. |
+| 2,4,6,8| 위 인접한 판단 값 사이의 중간 값 (Intermediate values) | 타협이 필요할 때 사용된다.                 |
+------------------------------------------------------------------
+역수(Reciprocals): 항목 i와 j를 비교할 때, i가 j보다 3배 중요하면, j는 i보다 1/3배 중요하다.
+"""

@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AHP 기반 애로요인 분석 설문 - 1단계</title>
+
+  <style>
+    body { font-family: sans-serif; line-height: 1.6; margin: 20px; }
+    h1, h2, h3 { color: #333; }
+    form { background: #f9f9f9; padding: 20px; border-radius: 8px; }
+    .question-group { margin-bottom: 30px; border-bottom: 1px solid #ddd; padding-bottom: 20px; }
+
+    .comparison{
+      display:grid;
+      grid-template-columns: 220px 1fr 220px;
+      gap:12px;
+      align-items:center;
+      margin-bottom:14px;
+    }
+    .item-left{ text-align:right; font-weight:600; }
+    .item-right{ text-align:left; font-weight:600; }
+
+    .options{
+      display:grid;
+      grid-template-columns: repeat(9, minmax(44px, 1fr));
+      gap:6px;
+      align-items:center;
+      justify-items:center;
+    }
+
+    .opt{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:6px;
+      padding:6px 8px;
+      border:1px solid #ddd;
+      border-radius:8px;
+      background:white;
+      cursor:pointer;
+      user-select:none;
+      font-size:14px;
+      width:100%;
+      box-sizing:border-box;
+    }
+    .opt input[type="radio"]{ margin:0; }
+    .opt input[type="radio"]:checked + span{ font-weight:700; color:#007bff; }
+    .opt.center{ border-color:#cfe8ff; background:#f6fbff; }
+
+    .flash-wrap{
+      position:sticky;
+      top:0;
+      z-index:9999;
+      margin-bottom:16px;
+    }
+    .flash{
+      display:flex;
+      align-items:flex-start;
+      gap:10px;
+      padding:14px 16px;
+      border-radius:12px;
+      border:1px solid transparent;
+      font-size:15px;
+      font-weight:700;
+      box-shadow:0 8px 18px rgba(0,0,0,0.08);
+    }
+    .flash::before{ content:"⚠️"; font-size:18px; line-height:1.2; margin-top:1px; }
+    .flash.error{ color:#fff; background:#d92d20; border-color:#b42318; }
+    .flash.success{ color:#fff; background:#16a34a; border-color:#15803d; }
+    .flash.warning{ color:#111827; background:#fbbf24; border-color:#f59e0b; }
+    .flash a{ color:#fff; text-decoration:underline; }
+    .flash.warning a{ color:#111827; }
+
+    button{
+      background-color:#007bff;
+      color:white;
+      padding:10px 20px;
+      border:none;
+      border-radius:5px;
+      cursor:pointer;
+      font-size:16px;
+    }
+    button:hover{ background-color:#0056b3; }
+  </style>
+</head>
+
+<body>
+  <div class="flash-wrap">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="flash {{ category }}">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+  </div>
+
+  <h1>AHP 기반 애로요인 분석 설문</h1>
+  <h2>1단계: 주요 항목 그룹 중요도 비교</h2>
+  
+
+  <div class="question-group">
+    <h3>안내: 주요 항목별 세부 항목</h3>
+    <p class="note">아래 세부 항목을 참고하신 뒤, 주요 항목(창업자금/비즈니스모델/경영관리) 간 상대적 중요도를 비교해주세요.</p>
+
+    {% for crit in hierarchy.criteria %}
+      <div style="margin-bottom: 12px;">
+        <strong>{{ crit }}</strong>
+        <ul>
+          {% for sub in sub_criteria_map[crit] %}
+            <li>{{ sub }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+    {% endfor %}
+  </div>
+
+  <div id="crBox" style="margin:12px 0; padding:12px; border:1px solid #ddd; border-radius:10px; background:#fff;">
+    <b>실시간 일관성(CR)</b>:
+    <span id="crText">문항을 모두 선택하면 계산됩니다.</span>
+  </div>
+
+  <p style="color:#555; margin-top:-4px;">
+    ※ 응답의 일관성이 낮으면 결과를 계산할 수 없어 다시 입력을 요청드립니다.
+  </p>
+
+  <form method="post" action="{{ url_for('ahp_survey_step1') }}">
+    <div class="question-group">
+      <h3>주요 항목(주 기준) 중요도 비교</h3>
+      <p class="note" style="color:#555;">
+        • 값이 <b>클수록 왼쪽 항목</b>이 더 중요합니다. 오른쪽이 더 중요하면 <b>1/3, 1/5 …</b>을 선택하세요. (1은 동일)
+      </p>
+
+      {% for item1, item2 in criteria_pairs %}
+        {% set radio_name = 'criteria_' + item1 + '_' + item2 %}
+        {% set scale_values = ['9','7','5','3','1','1/3','1/5','1/7','1/9'] %}
+
+        <div class="comparison">
+          <div class="item-left">{{ item1 }}</div>
+
+          <div class="options">
+            {% for v in scale_values %}
+              {% set is_checked = False %}
+              {% if form_data and form_data[radio_name] is defined %}
+                {% if form_data[radio_name] == v %}{% set is_checked = True %}{% endif %}
+              {% elif v == '1' %}
+                {% set is_checked = True %}
+              {% endif %}
+
+              <label class="opt {% if v == '1' %}center{% endif %}">
+                <input type="radio"
+                       name="{{ radio_name }}"
+                       value="{{ v }}"
+                       {% if is_checked %}checked{% endif %}
+                       {% if loop.first %}required{% endif %}>
+                <span>{{ v }}</span>
+              </label>
+            {% endfor %}
+          </div>
+
+          <div class="item-right">{{ item2 }}</div>
+        </div>
+      {% endfor %}
+    </div>
+
+    <button type="submit">다음(2단계로)</button>
+  </form>
+  <script>
+    (function(){
+    const form = document.querySelector('form');
+    const crText = document.getElementById('crText');
+
+    let t = null;
+    function debounce(fn, ms){
+        clearTimeout(t);
+        t = setTimeout(fn, ms);
+    }
+
+    async function calcCR(){
+        const fd = new FormData(form);
+        const obj = {};
+        for (const [k,v] of fd.entries()){
+        obj[k] = v;
+        }
+
+        const res = await fetch('/ahp/api/cr/step1', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(obj)
+        });
+        const json = await res.json();
+
+        if (!json.ready){
+        crText.textContent = json.message || '문항을 모두 선택하면 계산됩니다.';
+        return;
+        }
+
+        const cr = json.cr.toFixed(3);
+        if (json.ok){
+        crText.innerHTML = `CR = <b>${cr}</b> (통과 기준: ${json.threshold}) ✅`;
+        }else{
+        crText.innerHTML = `CR = <b>${cr}</b> (기준: ${json.threshold} 이하 필요) ⚠️`;
+        }
+    }
+
+    form.addEventListener('change', () => debounce(calcCR, 400));
+    // 초기 1회
+    debounce(calcCR, 100);
+    })();
+   </script>
+
+</body>
+</html>
